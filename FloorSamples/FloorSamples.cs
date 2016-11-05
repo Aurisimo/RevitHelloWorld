@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Extentions;
 
 namespace FloorSamples
 {
@@ -25,10 +26,18 @@ namespace FloorSamples
                     tran.Start();
 
                     var profile = getSampleProfile();
-                    Level level = getLevel1();
+                    Level level = getLevel1(doc);
                     Line slopeArrow = getSampleSlope(profile);
 
-                    doc.Create.NewSlab(profile, level, slopeArrow, 0, false);
+                    var floor = doc.Create.NewSlab(profile, level, slopeArrow, 0, true);
+
+                    var spanDirectionAngle = Math.PI;
+
+                    floor.SpanDirectionAngle = spanDirectionAngle;
+
+                    var spanDirIds = floor.GetSpanDirectionSymbolIds();
+                    var spanDir = floor.GetSpanDirection();
+
 
                     tran.Commit();
                 }
@@ -45,32 +54,43 @@ namespace FloorSamples
 
         private Line getSampleSlope(CurveArray profile)
         {
-            Line result = null;
+            foreach (Line line in profile)
+            {
+                return line;
+            }
 
-
-            return result;
+            return null;
         }
 
-        private Level getLevel1()
+        private Level getLevel1(Document doc)
         {
-            Level result = null;
+            var col = new FilteredElementCollector(doc);
 
+            var element = col.OfClass(typeof(Level)).FirstElement();
 
-            return result;
+            return element as Level;
         }
 
         private CurveArray getSampleProfile()
         {
             var result = new CurveArray();
 
-            var p0 = new XYZ();
+            var p0 = new XYZ(0, 0, 0);
+            var p1 = new XYZ(40, 0, 0);
+            var p2 = new XYZ(40, 40, 0);
+            var p3 = new XYZ(0, 40, 0);
+            var p4 = new XYZ(0, 0, 0);
 
+            var points = new List<XYZ>() { p0, p1, p2, p3, p4 };
 
+            var lines = points.ToLines();
+
+            foreach (var line in lines)
+            {
+                result.Append(line);
+            }
 
             return result;
         }
-
-
-
     }
 }
